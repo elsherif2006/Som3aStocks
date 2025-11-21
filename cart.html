@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Your Cart</h1>
+        <a href="index.html">Back to Products</a>
+    </header>
+    <main>
+        <h2>Cart Items</h2>
+        <button onclick="resetCart()" style="margin-bottom: 1rem; background-color: #f44336; color: white;">Reset Cart</button>
+        <ul id="cart-list"></ul>
+        <form id="checkout-form" action="">
+            <label for="address">Delivery Address:</label>
+            <textarea id="address" name="address" rows="4" cols="50" placeholder="Enter your full address here..." required></textarea>
+            <button type="button" onclick="whatsapp()">Proceed to whatsapp messages</button>
+
+        </form>
+    </main>
+    <script>
+        // Load cart items
+        function loadCart() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || {};
+            const cartList = document.getElementById('cart-list');
+            cartList.innerHTML = '';
+            const items = Object.keys(cart);
+            if (items.length === 0) {
+                cartList.innerHTML = '<li>Your cart is empty.</li>';
+            } else {
+                items.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = `${item} x${cart[item]}`;
+                    cartList.appendChild(li);
+                });
+            }
+        }
+        
+        // Reset the cart
+        function resetCart() {
+            if (confirm('Are you sure you want to reset the cart? This will remove all items.')) {
+                localStorage.setItem('cart', JSON.stringify({}));
+                loadCart(); // Refresh the cart display
+                alert('Cart has been reset.');
+            }
+        }
+        
+        function whatsapp(){
+            const address = document.getElementById('address').value.trim();
+            if (!address) {
+                alert('Please enter your address.');
+                return;
+            }
+            const cart = JSON.parse(localStorage.getItem('cart')) || {};
+            const items = Object.keys(cart);
+            if (items.length === 0) {
+                alert('Your cart is empty.');
+                return;
+            }
+            // Format message with quantities
+            const cartDetails = items.map(item => `${item} x${cart[item]}`).join(', ');
+            // const message = `Order Details:\nCart: ${cartDetails}\nAddress: ${address}\n\nPlease confirm my order!`;
+            
+            var whatsappurl="http://wa.me/201090061823?text="
+            + "order details %0a"
+            +"cart : %0a"
+            +cartDetails + "%0a"
+            +"address : %0a"
+            +address+"%0a"
+            +"Please confirm my order!"
+            window.open(whatsappurl,"_blank").focus();
+        }
+        // Proceed to Instagram DM
+        function proceedToDM() {
+            const address = document.getElementById('address').value.trim();
+            if (!address) {
+                alert('Please enter your address.');
+                return;
+            }
+            const cart = JSON.parse(localStorage.getItem('cart')) || {};
+            const items = Object.keys(cart);
+            if (items.length === 0) {
+                alert('Your cart is empty.');
+                return;
+            }
+            // Format message with quantities
+            const cartDetails = items.map(item => `${item} x${cart[item]}`).join(', ');
+            const message = `Order Details:\nCart: ${cartDetails}\nAddress: ${address}\n\nPlease confirm my order!`;
+            
+            // Alert the message for user to copy
+            alert(`Copy this message to send via Instagram DM:\n\n${message}`);
+            
+            // Redirect to Instagram profile (replace 'yourinstausername' with your actual username)
+            window.location.href = 'https://www.instagram.com/yourinstausername/';
+        }
+
+        // Load cart on page load
+        loadCart();
+    </script>
+</body>
+</html>
