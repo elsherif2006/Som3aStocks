@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clothes Store</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+    <nav>
+        <h1>Som3a Store</h1>
+        
+        <a href="cart.html" id="cart-link">Cart (0)</a>  <!-- For index.html -->
+        <!-- Or for cart.html: <a href="index.html">Back to Products</a> -->
+    </nav>
+</header>
+
+    <main>
+        <h2>Our Products</h2>
+        <div class="products">
+            <div class="product">
+                <h3>T-Shirt</h3>
+                <p>$20</p>
+                <div class="quantity-controls">
+                    <button onclick="updateSelectedQuantity('T-Shirt', -1)">-</button>
+                    <span id="selected-T-Shirt">0</span>
+                    <button onclick="updateSelectedQuantity('T-Shirt', 1)">+</button>
+                    <button onclick="addToCart('T-Shirt')">Add to Cart</button>
+                </div>
+            </div>
+            <div class="product">
+                <h3>Jeans</h3>
+                <p>$50</p>
+                <div class="quantity-controls">
+                    <button onclick="updateSelectedQuantity('Jeans', -1)">-</button>
+                    <span id="selected-Jeans">0</span>
+                    <button onclick="updateSelectedQuantity('Jeans', 1)">+</button>
+                    <button onclick="addToCart('Jeans')">Add to Cart</button>
+                </div>
+            </div>
+            <div class="product">
+                <h3>Jacket</h3>
+                <p>$80</p>
+                <div class="quantity-controls">
+                    <button onclick="updateSelectedQuantity('Jacket', -1)">-</button>
+                    <span id="selected-Jacket">0</span>
+                    <button onclick="updateSelectedQuantity('Jacket', 1)">+</button>
+                    <button onclick="addToCart('Jacket')">Add to Cart</button>
+                </div>
+            </div>
+            <div class="product">
+                <h3>Hat</h3>
+                <p>$15</p>
+                <div class="quantity-controls">
+                    <button onclick="updateSelectedQuantity('Hat', -1)">-</button>
+                    <span id="selected-Hat">0</span>
+                    <button onclick="updateSelectedQuantity('Hat', 1)">+</button>
+                    <button onclick="addToCart('Hat')">Add to Cart</button>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script>
+        // Load cart from localStorage or initialize as empty object
+        let cart = JSON.parse(localStorage.getItem('cart')) || {};
+        // Selected quantities (local to this page, not persisted)
+        let selectedQuantities = { 'T-Shirt': 0, 'Jeans': 0, 'Jacket': 0, 'Hat': 0 };
+
+        // Update cart counter in header (shows total pieces)
+        function updateCartCounter() {
+            const totalPieces = Object.values(cart).reduce((sum, qty) => sum + qty, 0);
+            document.getElementById('cart-link').textContent = `Cart (${totalPieces})`;
+        }
+
+        // Update selected quantity for a specific item
+        function updateSelectedQuantity(item, change) {
+            selectedQuantities[item] += change;
+            if (selectedQuantities[item] < 0) selectedQuantities[item] = 0;
+            document.getElementById(`selected-${item}`).textContent = selectedQuantities[item];
+        }
+
+        // Add selected quantity to cart
+        function addToCart(item) {
+            const qtyToAdd = selectedQuantities[item];
+            if (qtyToAdd <= 0) {
+                alert('Please select a quantity greater than 0.');
+                return;
+            }
+            if (!cart[item]) cart[item] = 0;
+            cart[item] += qtyToAdd;
+            localStorage.setItem('cart', JSON.stringify(cart));
+            selectedQuantities[item] = 0; // Reset selected quantity after adding
+            document.getElementById(`selected-${item}`).textContent = 0;
+            updateCartCounter();
+            alert(`${qtyToAdd} ${item}(s) added to cart!`);
+        }
+
+        // Initialize counter on page load
+        updateCartCounter();
+    </script>
+</body>
+</html>
