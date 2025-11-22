@@ -15,15 +15,14 @@
         <h2>Cart Items</h2>
         <button onclick="resetCart()" style="margin-bottom: 1rem; background-color: #f44336; color: white;">Reset Cart</button>
         <ul id="cart-list"></ul>
-        <form id="checkout-form" action="">
+        <form id="checkout-form">
             <label for="address">Delivery Address:</label>
             <textarea id="address" name="address" rows="4" cols="50" placeholder="Enter your full address here..." required></textarea>
-            <button type="button" onclick="whatsapp()">Proceed to whatsapp messages</button>
-
+            <button type="button" onclick="proceedToDM()">Proceed to Instagram DM</button>
         </form>
     </main>
     <script>
-        // Load cart items
+        // Load cart items with buttons
         function loadCart() {
             const cart = JSON.parse(localStorage.getItem('cart')) || {};
             const cartList = document.getElementById('cart-list');
@@ -34,12 +33,42 @@
             } else {
                 items.forEach(item => {
                     const li = document.createElement('li');
-                    li.textContent = `${item} x${cart[item]}`;
+                    li.style.display = 'flex';
+                    li.style.alignItems = 'center';
+                    li.style.justifyContent = 'space-between';
+                    li.innerHTML = `
+                        <span>${item} x${cart[item]}</span>
+                        <div class="cart-item-controls">
+                            <button onclick="updateQuantity('${item}', -1)">-</button>
+                            <button onclick="updateQuantity('${item}', 1)">+</button>
+                            <button onclick="deleteItem('${item}')" style="background-color: #f44336; color: white;">Delete</button>
+                        </div>
+                    `;
                     cartList.appendChild(li);
                 });
             }
         }
-        
+
+        // Update quantity for a specific item
+        function updateQuantity(item, change) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || {};
+            if (!cart[item]) return;
+            cart[item] += change;
+            if (cart[item] <= 0) {
+                delete cart[item]; // Remove if quantity <= 0
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            loadCart(); // Refresh display
+        }
+
+        // Delete a specific item
+        function deleteItem(item) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || {};
+            delete cart[item];
+            localStorage.setItem('cart', JSON.stringify(cart));
+            loadCart(); // Refresh display
+        }
+
         // Reset the cart
         function resetCart() {
             if (confirm('Are you sure you want to reset the cart? This will remove all items.')) {
@@ -48,34 +77,9 @@
                 alert('Cart has been reset.');
             }
         }
-        
-        function whatsapp(){
-            const address = document.getElementById('address').value.trim();
-            if (!address) {
-                alert('Please enter your address.');
-                return;
-            }
-            const cart = JSON.parse(localStorage.getItem('cart')) || {};
-            const items = Object.keys(cart);
-            if (items.length === 0) {
-                alert('Your cart is empty.');
-                return;
-            }
-            // Format message with quantities
-            const cartDetails = items.map(item => `${item} x${cart[item]}`).join(', ');
-            // const message = `Order Details:\nCart: ${cartDetails}\nAddress: ${address}\n\nPlease confirm my order!`;
-            
-            var whatsappurl="http://wa.me/201090061823?text="
-            + "order details %0a"
-            +"cart : %0a"
-            +cartDetails + "%0a"
-            +"address : %0a"
-            +address+"%0a"
-            +"Please confirm my order!"
-            window.open(whatsappurl,"_blank").focus();
-        }
-        // Proceed to Instagram DM
-        function proceedToDM() {
+
+        // Proceed to Instagram DM with auto-copy and redirect
+        async function proceedToDM() {
             const address = document.getElementById('address').value.trim();
             if (!address) {
                 alert('Please enter your address.');
@@ -91,11 +95,20 @@
             const cartDetails = items.map(item => `${item} x${cart[item]}`).join(', ');
             const message = `Order Details:\nCart: ${cartDetails}\nAddress: ${address}\n\nPlease confirm my order!`;
             
-            // Alert the message for user to copy
-            alert(`Copy this message to send via Instagram DM:\n\n${message}`);
+            // Try to copy to clipboard
+            try {
+                await navigator.clipboard.writeText(message);
+                alert('Message copied! Opening Instagram DMs... Paste and send.');
+            } catch (err) {
+                // Fallback if clipboard API fails
+                alert(`Copy failed. Manually copy this:\n\n${message}\n\nOpening Instagram...`);
+            }
             
-            // Redirect to Instagram profile (replace 'yourinstausername' with your actual username)
-            window.location.href = 'https://www.instagram.com/yourinstausername/';
+            // Small delay to ensure copy completes, then redirect
+            setTimeout(() => {
+                // Redirect to Instagram DM inbox (may prompt login or open app)
+                window.location.href = 'https://www.instagram.com/direct/inbox/';
+            }, 500); // 0.5 second delay
         }
 
         // Load cart on page load
