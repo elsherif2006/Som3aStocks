@@ -80,3 +80,11 @@ textarea {
     min-width: 20px;
     text-align: center;
 }
+.cart-item-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+.cart-item-controls button {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.9rem;
+}
